@@ -1,0 +1,584 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "com.github.ghostcrew/pentest-agent-mcp",
+  "description": "GHOSTCREW Pentest Agent MCP Server - AI-powered penetration testing with comprehensive security tools",
+  "status": "active",
+  "repository": {
+    "url": "https://github.com/MrFkry/PentestAgent",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "oci",
+      "registryBaseUrl": "https://ghcr.io",
+      "identifier": "mrfkry/pentest-agent-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "runtimeArguments": [
+        {
+          "type": "positional",
+          "value": "run",
+          "description": "The runtime command to execute"
+        },
+        {
+          "type": "named",
+          "name": "-i",
+          "description": "Run container in interactive mode"
+        },
+        {
+          "type": "named",
+          "name": "--rm",
+          "description": "Automatically remove the container when it exits"
+        },
+        {
+          "type": "named",
+          "name": "-v",
+          "description": "Mount volume"
+        },
+        {
+          "type": "positional",
+          "valueHint": "volume_mount",
+          "value": "/home/MrFkry/PentestAgent:/app",
+          "description": "Mount project directory"
+        },
+        {
+          "type": "named",
+          "name": "-e",
+          "description": "Set environment variable"
+        },
+        {
+          "type": "positional",
+          "valueHint": "env_var",
+          "value": "GEMINI_API_KEY",
+          "description": "Gemini API key for AI model"
+        },
+        {
+          "type": "named",
+          "name": "-e",
+          "description": "Set environment variable"
+        },
+        {
+          "type": "positional",
+          "valueHint": "env_var",
+          "value": "GITHUB_TOKEN",
+          "description": "GitHub personal access token"
+        },
+        {
+          "type": "positional",
+          "valueHint": "image_name",
+          "value": "ghcr.io/mrfkry/pentest-agent-mcp:0.1.0",
+          "description": "The container image to run"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "description": "Gemini API key for AI-powered analysis",
+          "isRequired": true,
+          "format": "string",
+          "isSecret": true,
+          "name": "GEMINI_API_KEY"
+        },
+        {
+          "description": "GitHub personal access token for MCP integration",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true,
+          "name": "GITHUB_TOKEN"
+        },
+        {
+          "description": "Model name to use (default: gemini-1.5-flash)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "MODEL_NAME"
+        }
+      ]
+    }
+  ],
+  "servers": [
+    {
+      "name": "gemini-ai",
+      "description": "Google Gemini AI for intelligent security analysis",
+      "params": {
+        "command": "/usr/bin/python3",
+        "args": ["-m", "google.generativeai"],
+        "env": {
+          "PATH": "/usr/local/bin:/usr/bin:/bin",
+          "PYTHONPATH": "/home/MrFkry/PentestAgent",
+          "GOOGLE_API_KEY": "${GEMINI_API_KEY}"
+        }
+      },
+      "cache_tools_list": true,
+      "authentication": {
+        "type": "api_key",
+        "header": "x-goog-api-key",
+        "key_variable": "GEMINI_API_KEY"
+      },
+      "api_config": {
+        "base_url": "https://generativelanguage.googleapis.com/v1beta",
+        "model": "gemini-1.5-flash",
+        "temperature": 0.7,
+        "max_tokens": 8192
+      }
+    },
+    {
+      "name": "pentest-agent-core",
+      "description": "Core pentest agent with AI planning and execution",
+      "params": {
+        "command": "/usr/bin/python3",
+        "args": ["/home/MrFkry/PentestAgent/main.py", "--mcp-mode"],
+        "env": {
+          "PATH": "/usr/local/bin:/usr/bin:/bin",
+          "PYTHONPATH": "/home/MrFkry/PentestAgent",
+          "GEMINI_API_KEY": "${GEMINI_API_KEY}"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "workflow-engine",
+      "description": "Automated workflow execution engine",
+      "params": {
+        "command": "/usr/bin/python3",
+        "args": ["/home/MrFkry/PentestAgent/workflows/workflow_runner.py", "--mcp"],
+        "env": {
+          "PATH": "/usr/local/bin:/usr/bin:/bin",
+          "PYTHONPATH": "/home/MrFkry/PentestAgent"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "knowledge-base",
+      "description": "Security knowledge base with RAG capabilities",
+      "params": {
+        "command": "/usr/bin/python3",
+        "args": ["-m", "rag.knowledge_base"],
+        "env": {
+          "PATH": "/usr/local/bin:/usr/bin:/bin",
+          "PYTHONPATH": "/home/MrFkry/PentestAgent"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "nmap",
+      "description": "Network mapper and port scanner",
+      "params": {
+        "command": "/usr/bin/nmap",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/usr/bin:/usr/local/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "masscan",
+      "description": "High-speed port scanner",
+      "params": {
+        "command": "/usr/bin/masscan",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/usr/bin:/usr/local/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "nuclei",
+      "description": "Vulnerability scanner using templates",
+      "params": {
+        "command": "/home/MrFkry/go/bin/nuclei",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/home/MrFkry/go/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "httpx",
+      "description": "HTTP client for web discovery",
+      "params": {
+        "command": "/home/MrFkry/.local/bin/httpx",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/home/MrFkry/.local/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "gobuster",
+      "description": "Directory and DNS brute-forcer",
+      "params": {
+        "command": "/usr/bin/gobuster",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/usr/bin:/usr/local/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "sqlmap",
+      "description": "SQL injection testing tool",
+      "params": {
+        "command": "/home/MrFkry/.local/bin/sqlmap",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/home/MrFkry/.local/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "hydra",
+      "description": "Network password brute-forcer",
+      "params": {
+        "command": "/usr/bin/hydra",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/usr/bin:/usr/local/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "ffuf",
+      "description": "Fast web fuzzer",
+      "params": {
+        "command": "/usr/bin/ffuf",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/usr/bin:/usr/local/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "katana",
+      "description": "Fast crawler focused on automation",
+      "params": {
+        "command": "/home/MrFkry/go/bin/katana",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/home/MrFkry/go/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "alterx",
+      "description": "Subdomain wordlist generator",
+      "params": {
+        "command": "/home/MrFkry/go/bin/alterx",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/home/MrFkry/go/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "amass",
+      "description": "In-depth subdomain enumeration",
+      "params": {
+        "command": "/snap/bin/amass",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/snap/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "arjun",
+      "description": "HTTP parameter discovery",
+      "params": {
+        "command": "/home/MrFkry/.local/bin/arjun",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/home/MrFkry/.local/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "assetfinder",
+      "description": "Find domains and subdomains",
+      "params": {
+        "command": "/home/MrFkry/go/bin/assetfinder",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/home/MrFkry/go/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "metasploit",
+      "description": "Penetration testing framework",
+      "params": {
+        "command": "/usr/local/bin/msfconsole",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "sslscan",
+      "description": "SSL/TLS scanner",
+      "params": {
+        "command": "/usr/bin/sslscan",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/usr/bin:/usr/local/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "waybackurls",
+      "description": "Fetch URLs from Wayback Machine",
+      "params": {
+        "command": "/home/MrFkry/go/bin/waybackurls",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/home/MrFkry/go/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "bloodhound",
+      "description": "Active Directory enumeration",
+      "params": {
+        "command": "/usr/local/bin/bloodhound-python",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "crackmapexec",
+      "description": "Network pentesting tool",
+      "params": {
+        "command": "/home/MrFkry/.local/bin/crackmapexec",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/home/MrFkry/.local/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "responder",
+      "description": "LLMNR, NBT-NS poisoner",
+      "params": {
+        "command": "/home/MrFkry/.local/bin/responder",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/home/MrFkry/.local/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "bettercap",
+      "description": "Network attack framework",
+      "params": {
+        "command": "/usr/bin/bettercap",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/usr/bin:/usr/local/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "scout-suite",
+      "description": "Multi-cloud security auditing",
+      "params": {
+        "command": "/home/MrFkry/.local/bin/scout",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/home/MrFkry/.local/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "shuffledns",
+      "description": "DNS resolution and bruteforce",
+      "params": {
+        "command": "/home/MrFkry/go/bin/shuffledns",
+        "args": ["stdio"],
+        "env": {
+          "PATH": "/home/MrFkry/go/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+      },
+      "cache_tools_list": true
+    },
+    {
+      "name": "burpsuite",
+      "description": "BurpSuite Community v2025.10 - Web application security testing (headless)",
+      "params": {
+        "command": "/usr/bin/java",
+        "args": [
+          "-jar",
+          "-Xmx2g",
+          "-Djava.awt.headless=true",
+          "/home/MrFkry/PentestAgent/draft/burpsuite/burpsuite_community_v2025.10.jar",
+          "--headless",
+          "--project-file=/home/MrFkry/PentestAgent/draft/burpsuite/mcp_project.burp",
+          "--config-file=/home/MrFkry/PentestAgent/draft/burpsuite/config.json"
+        ],
+        "env": {
+          "PATH": "/usr/bin:/usr/local/bin:/bin",
+          "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk-amd64",
+          "BURP_SUITE_VERSION": "2025.10"
+        }
+      },
+      "cache_tools_list": false,
+      "metadata": {
+        "version": "2025.10",
+        "edition": "community",
+        "jar_path": "/home/MrFkry/PentestAgent/draft/burpsuite/burpsuite_community_v2025.10.jar"
+      }
+    }
+  ],
+  "tools": {
+    "pentest": {
+      "name": "run_pentest",
+      "description": "Execute a full penetration test with AI planning",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "goal": {
+            "type": "string",
+            "description": "High-level objective of the pentest"
+          },
+          "target": {
+            "type": "string",
+            "description": "Target IP, domain, or network range"
+          },
+          "interactive": {
+            "type": "boolean",
+            "description": "Enable interactive mode with user confirmations",
+            "default": false
+          }
+        },
+        "required": ["goal", "target"]
+      }
+    },
+    "workflow": {
+      "name": "execute_workflow",
+      "description": "Run a predefined automated workflow",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "workflow_id": {
+            "type": "string",
+            "enum": [
+              "reconnaissance",
+              "web_application",
+              "network_infrastructure",
+              "full_penetration_test",
+              "quick_scan",
+              "comprehensive_scan"
+            ],
+            "description": "Workflow identifier"
+          },
+          "target": {
+            "type": "string",
+            "description": "Target for workflow execution"
+          }
+        },
+        "required": ["workflow_id", "target"]
+      }
+    },
+    "knowledge_search": {
+      "name": "search_knowledge_base",
+      "description": "Search security knowledge base for exploits, techniques, etc.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["exploits", "shellcodes", "wordlists", "tools", "other"],
+            "description": "Optional category filter"
+          },
+          "max_results": {
+            "type": "integer",
+            "description": "Maximum number of results",
+            "default": 5
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    "report": {
+      "name": "generate_report",
+      "description": "Generate penetration test report",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": ["json", "markdown", "html"],
+            "description": "Report format",
+            "default": "json"
+          },
+          "engagement_id": {
+            "type": "string",
+            "description": "Engagement identifier"
+          }
+        },
+        "required": ["engagement_id"]
+      }
+    }
+  },
+  "capabilities": {
+    "ai_powered_planning": true,
+    "automated_workflows": true,
+    "knowledge_base_rag": true,
+    "multi_phase_execution": true,
+    "interactive_mode": true,
+    "comprehensive_reporting": true,
+    "mcp_integration": true,
+    "tool_orchestration": true
+  },
+  "metadata": {
+    "author": "MrFkry",
+    "maintainer": "GHOSTCREW Team",
+    "categories": [
+      "security",
+      "penetration-testing",
+      "vulnerability-assessment",
+      "ai-automation"
+    ],
+    "keywords": [
+      "pentest",
+      "security",
+      "ai",
+      "mcp",
+      "automation",
+      "vulnerability-scanning",
+      "exploitation"
+    ],
+    "documentation": "https://github.com/MrFkry/PentestAgent/blob/main/README.md"
+  }
+}

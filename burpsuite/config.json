@@ -1,0 +1,59 @@
+{
+  "version": "2025.10",
+  "edition": "community",
+  "headless_mode": true,
+  "proxy": {
+    "request_listeners": [
+      {
+        "certificate_mode": "per_host",
+        "listen_mode": "all_interfaces",
+        "listener_port": 8080,
+        "running": true,
+        "support_invisible_proxying": true,
+        "redirect_to_host": "",
+        "use_user_options": true
+      }
+    ],
+    "http_history_display_filter": {
+      "by_annotation": {
+        "show_only_commented_items": false,
+        "show_only_highlighted_items": false
+      }
+    }
+  },
+  "scanner": {
+    "active_scanning_engine": {
+      "number_of_threads": 10,
+      "throttle_between_requests": 0
+    },
+    "audit_optimization": {
+      "consolidate_passive_issues": true,
+      "follow_redirections": true,
+      "skip_ineffective_checks": true
+    },
+    "issues": {
+      "reported_minimum_confidence": "Certain",
+      "reported_minimum_severity": "Information"
+    },
+    "passive_scanning_engine": {
+      "automatically_update_content_type_based_on_server_responses": true,
+      "check_for_dom_based_issues": true
+    }
+  },
+  "spider": {
+    "mode": "modern",
+    "max_link_depth": 5,
+    "max_duration": 0,
+    "number_of_threads": 10,
+    "case_sensitive": false,
+    "detect_custom_not_found_responses": true,
+    "application_login": {
+      "record_login_sequence": false
+    }
+  },
+  "target_scope": {
+    "advanced_mode": true,
+    "include": [],
+    "exclude": []
+  }
+}

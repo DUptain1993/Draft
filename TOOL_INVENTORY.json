@@ -1,0 +1,565 @@
+{
+  "project": "GHOSTCREW Pentest Agent",
+  "version": "0.1.0",
+  "system": "Linux 6.14.0-1017-gcp",
+  "last_updated": "2025-10-20",
+  "tools": {
+    "reconnaissance": [
+      {
+        "name": "nmap",
+        "path": "/usr/bin/nmap",
+        "version_check": "nmap --version",
+        "description": "Network mapper and port scanner",
+        "category": "network_scanning",
+        "requires_sudo": true,
+        "phases": ["reconnaissance", "enumeration"],
+        "mcp_configured": true,
+        "commands": {
+          "ping_scan": {
+            "args": ["-sn"],
+            "description": "Host discovery without port scan"
+          },
+          "port_scan": {
+            "args": ["-sS", "-sV", "-O", "-A", "-p-"],
+            "description": "Full port scan with service detection"
+          },
+          "quick_scan": {
+            "args": ["--top-ports", "1000"],
+            "description": "Scan top 1000 ports"
+          }
+        }
+      },
+      {
+        "name": "masscan",
+        "path": "/usr/bin/masscan",
+        "version_check": "masscan --version",
+        "description": "High-speed mass port scanner",
+        "category": "network_scanning",
+        "requires_sudo": true,
+        "phases": ["reconnaissance"],
+        "mcp_configured": true,
+        "commands": {
+          "all_ports": {
+            "args": ["-p", "1-65535", "--rate", "1000"],
+            "description": "Scan all TCP ports at 1000 packets/sec"
+          }
+        }
+      },
+      {
+        "name": "amass",
+        "path": "/snap/bin/amass",
+        "version_check": "amass version",
+        "description": "In-depth subdomain enumeration",
+        "category": "osint",
+        "requires_sudo": false,
+        "phases": ["reconnaissance"],
+        "mcp_configured": true,
+        "commands": {
+          "enum": {
+            "args": ["enum", "-passive", "-d"],
+            "description": "Passive subdomain enumeration"
+          }
+        }
+      },
+      {
+        "name": "assetfinder",
+        "path": "/home/MrFkry/go/bin/assetfinder",
+        "version_check": "assetfinder --help",
+        "description": "Find domains and subdomains",
+        "category": "osint",
+        "requires_sudo": false,
+        "phases": ["reconnaissance"],
+        "mcp_configured": true,
+        "commands": {
+          "discover": {
+            "args": ["--subs-only"],
+            "description": "Find subdomains only"
+          }
+        }
+      },
+      {
+        "name": "waybackurls",
+        "path": "/home/MrFkry/go/bin/waybackurls",
+        "version_check": "waybackurls -h",
+        "description": "Fetch URLs from Wayback Machine",
+        "category": "osint",
+        "requires_sudo": false,
+        "phases": ["reconnaissance"],
+        "mcp_configured": true,
+        "commands": {
+          "fetch": {
+            "args": [],
+            "description": "Fetch archived URLs"
+          }
+        }
+      },
+      {
+        "name": "shuffledns",
+        "path": "/home/MrFkry/go/bin/shuffledns",
+        "version_check": "shuffledns -version",
+        "description": "Mass DNS resolution with active bruteforce",
+        "category": "dns",
+        "requires_sudo": false,
+        "phases": ["reconnaissance"],
+        "mcp_configured": true,
+        "commands": {
+          "resolve": {
+            "args": ["-w", "/home/MrFkry/PentestAgent/knowledge/wordlists/dns.txt"],
+            "description": "DNS bruteforce"
+          }
+        }
+      }
+    ],
+    "web_application": [
+      {
+        "name": "httpx",
+        "path": "/home/MrFkry/.local/bin/httpx",
+        "version_check": "httpx -version",
+        "description": "Fast HTTP probe and discovery",
+        "category": "web_recon",
+        "requires_sudo": false,
+        "phases": ["reconnaissance", "enumeration"],
+        "mcp_configured": true,
+        "commands": {
+          "basic_scan": {
+            "args": ["-v", "--follow-redirects", "--timeout", "10"],
+            "description": "Probe HTTP services"
+          }
+        }
+      },
+      {
+        "name": "nuclei",
+        "path": "/home/MrFkry/go/bin/nuclei",
+        "version_check": "nuclei -version",
+        "description": "Fast vulnerability scanner with templates",
+        "category": "vulnerability_scanner",
+        "requires_sudo": false,
+        "phases": ["vulnerability_assessment", "exploitation"],
+        "mcp_configured": true,
+        "commands": {
+          "vulnerability_scan": {
+            "args": ["-t", "cves,vulnerabilities", "-silent"],
+            "description": "Scan for CVEs and vulnerabilities"
+          }
+        }
+      },
+      {
+        "name": "gobuster",
+        "path": "/usr/bin/gobuster",
+        "version_check": "gobuster version",
+        "description": "Directory and file bruteforcer",
+        "category": "web_enumeration",
+        "requires_sudo": false,
+        "phases": ["enumeration"],
+        "mcp_configured": true,
+        "commands": {
+          "dir_scan": {
+            "args": ["dir", "-w", "/usr/share/wordlists/dirb/common.txt", "-t", "20", "-k", "-b", "403,404"],
+            "description": "Directory bruteforce"
+          }
+        }
+      },
+      {
+        "name": "ffuf",
+        "path": "/usr/bin/ffuf",
+        "version_check": "ffuf -V",
+        "description": "Fast web fuzzer",
+        "category": "web_fuzzing",
+        "requires_sudo": false,
+        "phases": ["enumeration"],
+        "mcp_configured": true,
+        "commands": {
+          "dir_fuzz": {
+            "args": ["-w", "/usr/share/wordlists/dirb/common.txt", "-mc", "200,301,302,307"],
+            "description": "Directory fuzzing"
+          }
+        }
+      },
+      {
+        "name": "katana",
+        "path": "/home/MrFkry/go/bin/katana",
+        "version_check": "katana -version",
+        "description": "Fast crawler focused on execution in automation",
+        "category": "web_crawler",
+        "requires_sudo": false,
+        "phases": ["enumeration"],
+        "mcp_configured": true,
+        "commands": {
+          "crawl": {
+            "args": ["-d", "5", "-jc", "-kf", "all"],
+            "description": "Deep crawl with JavaScript rendering"
+          }
+        }
+      },
+      {
+        "name": "arjun",
+        "path": "/home/MrFkry/.local/bin/arjun",
+        "version_check": "arjun --help",
+        "description": "HTTP parameter discovery suite",
+        "category": "web_enumeration",
+        "requires_sudo": false,
+        "phases": ["enumeration"],
+        "mcp_configured": true,
+        "commands": {
+          "param_discovery": {
+            "args": ["-t", "20", "--stable"],
+            "description": "Discover hidden parameters"
+          }
+        }
+      },
+      {
+        "name": "alterx",
+        "path": "/home/MrFkry/go/bin/alterx",
+        "version_check": "alterx -version",
+        "description": "Fast and customizable subdomain wordlist generator",
+        "category": "wordlist_generation",
+        "requires_sudo": false,
+        "phases": ["reconnaissance"],
+        "mcp_configured": true,
+        "commands": {
+          "generate": {
+            "args": ["-enrich"],
+            "description": "Generate subdomain permutations"
+          }
+        }
+      },
+      {
+        "name": "burpsuite",
+        "path": "/usr/bin/java",
+        "jar_path": "/home/MrFkry/PentestAgent/burpsuite/burpsuite_community_v2025.10.jar",
+        "version_check": "java -jar /home/MrFkry/PentestAgent/burpsuite/burpsuite_community_v2025.10.jar --version",
+        "description": "Web application security testing platform",
+        "category": "web_proxy_scanner",
+        "requires_sudo": false,
+        "phases": ["enumeration", "vulnerability_assessment"],
+        "mcp_configured": true,
+        "commands": {
+          "passive_proxy": {
+            "args": ["-jar", "-Xmx2g", "/home/MrFkry/PentestAgent/burpsuite/burpsuite_community_v2025.10.jar", "--headless", "--project-file=/home/MrFkry/PentestAgent/burpsuite/project.burp"],
+            "description": "Run as passive proxy"
+          }
+        }
+      }
+    ],
+    "vulnerability_exploitation": [
+      {
+        "name": "sqlmap",
+        "path": "/home/MrFkry/.local/bin/sqlmap",
+        "version_check": "sqlmap --version",
+        "description": "Automatic SQL injection and database takeover tool",
+        "category": "exploitation",
+        "requires_sudo": false,
+        "phases": ["exploitation"],
+        "mcp_configured": true,
+        "commands": {
+          "basic_test": {
+            "args": ["--batch", "--dbs"],
+            "description": "Test for SQL injection and enumerate databases"
+          }
+        }
+      },
+      {
+        "name": "hydra",
+        "path": "/usr/bin/hydra",
+        "version_check": "hydra -h",
+        "description": "Network logon password brute-forcer",
+        "category": "password_attack",
+        "requires_sudo": false,
+        "phases": ["exploitation"],
+        "mcp_configured": true,
+        "commands": {
+          "ssh_brute": {
+            "args": ["-l", "admin", "-P", "/usr/share/wordlists/rockyou.txt", "-t", "4"],
+            "description": "SSH brute force attack"
+          }
+        }
+      },
+      {
+        "name": "metasploit",
+        "path": "/usr/local/bin/msfconsole",
+        "version_check": "msfconsole --version",
+        "description": "Penetration testing framework",
+        "category": "exploitation_framework",
+        "requires_sudo": false,
+        "phases": ["exploitation", "post_exploitation"],
+        "mcp_configured": true,
+        "commands": {
+          "resource": {
+            "args": ["-q", "-r"],
+            "description": "Execute resource script"
+          }
+        }
+      },
+      {
+        "name": "john",
+        "path": "/usr/sbin/john",
+        "version_check": "john --version",
+        "description": "John the Ripper password cracker",
+        "category": "password_cracking",
+        "requires_sudo": false,
+        "phases": ["post_exploitation"],
+        "mcp_configured": false,
+        "commands": {
+          "crack": {
+            "args": ["--wordlist=/usr/share/wordlists/rockyou.txt"],
+            "description": "Password cracking with wordlist"
+          }
+        }
+      },
+      {
+        "name": "hashcat",
+        "path": "/usr/bin/hashcat",
+        "version_check": "hashcat --version",
+        "description": "Advanced password recovery",
+        "category": "password_cracking",
+        "requires_sudo": false,
+        "phases": ["post_exploitation"],
+        "mcp_configured": false,
+        "commands": {
+          "wordlist_attack": {
+            "args": ["-m", "0", "-a", "0"],
+            "description": "Dictionary attack"
+          }
+        }
+      }
+    ],
+    "network_exploitation": [
+      {
+        "name": "crackmapexec",
+        "path": "/home/MrFkry/.local/bin/crackmapexec",
+        "version_check": "crackmapexec --version",
+        "description": "Swiss army knife for pentesting networks",
+        "category": "network_exploitation",
+        "requires_sudo": false,
+        "phases": ["exploitation", "post_exploitation"],
+        "mcp_configured": true,
+        "commands": {
+          "smb_enum": {
+            "args": ["smb", "--shares", "--users", "--groups"],
+            "description": "SMB enumeration"
+          }
+        }
+      },
+      {
+        "name": "responder",
+        "path": "/home/MrFkry/.local/bin/responder",
+        "version_check": "responder --version",
+        "description": "LLMNR, NBT-NS and MDNS poisoner",
+        "category": "network_exploitation",
+        "requires_sudo": true,
+        "phases": ["exploitation"],
+        "mcp_configured": true,
+        "commands": {
+          "poison": {
+            "args": ["-I", "eth0", "-wf"],
+            "description": "Poison network protocols"
+          }
+        }
+      },
+      {
+        "name": "bettercap",
+        "path": "/usr/bin/bettercap",
+        "version_check": "bettercap --version",
+        "description": "Network attack and monitoring framework",
+        "category": "network_exploitation",
+        "requires_sudo": true,
+        "phases": ["exploitation"],
+        "mcp_configured": true,
+        "commands": {
+          "mitm": {
+            "args": ["-iface", "eth0", "-caplet", "mitm.cap"],
+            "description": "Man-in-the-middle attack"
+          }
+        }
+      }
+    ],
+    "active_directory": [
+      {
+        "name": "bloodhound",
+        "path": "/usr/local/bin/bloodhound-python",
+        "version_check": "bloodhound-python --version",
+        "description": "Active Directory enumeration tool",
+        "category": "ad_enumeration",
+        "requires_sudo": false,
+        "phases": ["enumeration", "post_exploitation"],
+        "mcp_configured": true,
+        "commands": {
+          "collect": {
+            "args": ["-c", "All", "-d"],
+            "description": "Collect all AD data"
+          }
+        }
+      }
+    ],
+    "ssl_tls": [
+      {
+        "name": "sslscan",
+        "path": "/usr/bin/sslscan",
+        "version_check": "sslscan --version",
+        "description": "SSL/TLS scanner",
+        "category": "ssl_analysis",
+        "requires_sudo": false,
+        "phases": ["enumeration"],
+        "mcp_configured": true,
+        "commands": {
+          "scan": {
+            "args": ["--show-certificate", "--no-colour"],
+            "description": "Scan SSL/TLS configuration"
+          }
+        }
+      },
+      {
+        "name": "nikto",
+        "path": "/usr/bin/nikto",
+        "version_check": "nikto -Version",
+        "description": "Web server scanner",
+        "category": "web_scanner",
+        "requires_sudo": false,
+        "phases": ["vulnerability_assessment"],
+        "mcp_configured": false,
+        "commands": {
+          "scan": {
+            "args": ["-h"],
+            "description": "Web server vulnerability scan"
+          }
+        }
+      }
+    ],
+    "cloud_security": [
+      {
+        "name": "scout-suite",
+        "path": "/home/MrFkry/.local/bin/scout",
+        "version_check": "scout --version",
+        "description": "Multi-cloud security auditing tool",
+        "category": "cloud_audit",
+        "requires_sudo": false,
+        "phases": ["enumeration", "vulnerability_assessment"],
+        "mcp_configured": true,
+        "commands": {
+          "aws_audit": {
+            "args": ["aws", "--services"],
+            "description": "AWS security audit"
+          }
+        }
+      }
+    ]
+  },
+  "knowledge_base": {
+    "exploits_database": {
+      "path": "/home/MrFkry/PentestAgent/knowledge/exploits",
+      "description": "Collection of exploit codes and PoCs",
+      "categories": ["web", "network", "windows", "linux", "macos", "mobile"]
+    },
+    "shellcodes": {
+      "path": "/home/MrFkry/PentestAgent/knowledge/shellcodes",
+      "description": "Shellcode payloads for various architectures"
+    },
+    "wordlists": {
+      "path": "/home/MrFkry/PentestAgent/knowledge/wordlists",
+      "description": "Password and fuzzing wordlists",
+      "files": [
+        "dns.txt",
+        "directories.txt",
+        "passwords.txt",
+        "usernames.txt"
+      ]
+    },
+    "system_wordlists": {
+      "path": "/usr/share/wordlists",
+      "description": "System-wide wordlists",
+      "notable_files": [
+        "dirb/common.txt",
+        "rockyou.txt",
+        "metasploit/"
+      ]
+    }
+  },
+  "mcp_servers": {
+    "total_configured": 22,
+    "active_servers": [
+      "alterx",
+      "amass",
+      "arjun",
+      "assetfinder",
+      "ffuf",
+      "httpx",
+      "hydra",
+      "katana",
+      "masscan",
+      "metasploit",
+      "nmap",
+      "nuclei",
+      "scout-suite",
+      "shuffledns",
+      "sqlmap",
+      "sslscan",
+      "waybackurls",
+      "bloodhound",
+      "crackmapexec",
+      "gobuster",
+      "responder",
+      "bettercap"
+    ],
+    "server_config_file": "/home/MrFkry/PentestAgent/mcp.json"
+  },
+  "results_directory": {
+    "base_path": "/home/MrFkry/PentestAgent/Results",
+    "subdirectories": [
+      "scans",
+      "vulnerabilities",
+      "exploits",
+      "reports",
+      "logs",
+      "outputs"
+    ]
+  },
+  "workflows": {
+    "available_workflows": [
+      "reconnaissance",
+      "web_application",
+      "network_infrastructure",
+      "full_penetration_test",
+      "quick_scan",
+      "comprehensive_scan"
+    ],
+    "workflow_definitions": "/home/MrFkry/PentestAgent/workflows/workflow_definitions.py"
+  },
+  "python_dependencies": [
+    "colorama==0.4.6",
+    "python-dotenv==1.1.0",
+    "google-generativeai==0.8.3",
+    "uvicorn==0.34.0",
+    "mcp==1.6.0",
+    "langchain==0.3.25",
+    "langchain-community==0.3.24",
+    "numpy<2.0.0",
+    "ollama==0.4.8",
+    "fastapi==0.115.9",
+    "pymetasploit3==1.0.6",
+    "tiktoken>=0.5.0",
+    "psutil==5.9.8",
+    "pytest==8.3.2",
+    "pytest-asyncio==0.23.7",
+    "xmltodict>=0.13.0",
+    "asyncio-mqtt>=0.16.0",
+    "aiofiles>=23.0.0"
+  ],
+  "system_info": {
+    "platform": "linux",
+    "os_version": "Linux 6.14.0-1017-gcp",
+    "working_directory": "/home/MrFkry/PentestAgent",
+    "python_version": "3.x",
+    "java_required": true,
+    "sudo_required": true
+  },
+  "notes": [
+    "All MCP-configured tools use stdio transport for communication",
+    "Tools requiring sudo are marked accordingly and must be run with elevated privileges",
+    "BurpSuite requires Java 11+ and additional JAR file installation",
+    "Knowledge base uses text-based search without embeddings for simplicity",
+    "Results are stored in JSON format with structured metadata",
+    "Tool execution is async-based using Python asyncio",
+    "Workflow engine supports both automated and interactive modes",
+    "GitHub MCP server integration requires GITHUB_PERSONAL_ACCESS_TOKEN"
+  ]
+}
